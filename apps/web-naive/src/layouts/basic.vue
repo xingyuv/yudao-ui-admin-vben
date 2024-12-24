@@ -2,11 +2,12 @@
 import type { NotificationItem } from '@vben/layouts';
 
 import { computed, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
 
 import { AuthenticationLoginExpiredModal } from '@vben/common-ui';
-import { VBEN_DOC_URL, VBEN_GITHUB_URL } from '@vben/constants';
+import { VBEN_DOC_URL, YUDAO_UI_ADMIN_VBEN_URL } from '@vben/constants';
 import { useWatermark } from '@vben/hooks';
-import { BookOpenText, CircleHelp, MdiGithub } from '@vben/icons';
+import { BookOpenText, CircleHelp, Info, MdiGithub } from '@vben/icons';
 import {
   BasicLayout,
   LockScreen,
@@ -20,6 +21,8 @@ import { openWindow } from '@vben/utils';
 import { $t } from '#/locales';
 import { useAuthStore } from '#/store';
 import LoginForm from '#/views/_core/authentication/login.vue';
+
+const router = useRouter();
 
 const notifications = ref<NotificationItem[]>([
   {
@@ -63,6 +66,13 @@ const showDot = computed(() =>
 const menus = computed(() => [
   {
     handler: () => {
+      router.push('/profile/index');
+    },
+    icon: Info,
+    text: '个人中心',
+  },
+  {
+    handler: () => {
       openWindow(VBEN_DOC_URL, {
         target: '_blank',
       });
@@ -72,16 +82,16 @@ const menus = computed(() => [
   },
   {
     handler: () => {
-      openWindow(VBEN_GITHUB_URL, {
+      openWindow(YUDAO_UI_ADMIN_VBEN_URL, {
         target: '_blank',
       });
     },
     icon: MdiGithub,
-    text: 'GitHub',
+    text: 'Gitee',
   },
   {
     handler: () => {
-      openWindow(`${VBEN_GITHUB_URL}/issues`, {
+      openWindow(`${YUDAO_UI_ADMIN_VBEN_URL}/issues`, {
         target: '_blank',
       });
     },
@@ -105,7 +115,6 @@ function handleNoticeClear() {
 function handleMakeAll() {
   notifications.value.forEach((item) => (item.isRead = true));
 }
-
 watch(
   () => preferences.app.watermark,
   async (enable) => {
@@ -129,9 +138,8 @@ watch(
       <UserDropdown
         :avatar
         :menus
-        :text="userStore.userInfo?.realName"
-        description="ann.vben@gmail.com"
-        tag-text="Pro"
+        :text="userStore.userInfo?.nickname"
+        tag-text="Admin"
         @logout="handleLogout"
       />
     </template>

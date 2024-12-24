@@ -18,7 +18,15 @@ import {
   zhCN,
 } from 'naive-ui';
 
+declare global {
+  interface Window {
+    $notification: NotificationProviderInst | null;
+  }
+}
+
 defineOptions({ name: 'App' });
+
+window.$notification = null;
 
 const { commonTokens } = useNaiveDesignTokens();
 

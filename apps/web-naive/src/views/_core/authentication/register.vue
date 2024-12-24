@@ -67,7 +67,7 @@ const formSchema = computed((): VbenFormSchema[] => {
             h(
               'a',
               {
-                class: 'vben-link ml-1',
+                class: 'vben-link ml-1 ',
                 href: '',
               },
               `${$t('authentication.privacyPolicy')} & ${$t('authentication.terms')}`,

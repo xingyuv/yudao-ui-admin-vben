@@ -1,4 +1,5 @@
 import { createApp, watchEffect } from 'vue';
+import VueDomPurifyHTML from 'vue-dompurify-html';
 
 import { registerAccessDirective } from '@vben/access';
 import { preferences } from '@vben/preferences';
@@ -21,7 +22,7 @@ async function bootstrap(namespace: string) {
   // 国际化 i18n 配置
   await setupI18n(app);
 
-  // 配置 pinia-tore
+  // 配置 pinia-store
   await initStores(app, { namespace });
 
   // 安装权限指令
@@ -29,6 +30,9 @@ async function bootstrap(namespace: string) {
 
   // 配置路由及路由守卫
   app.use(router);
+
+  // 安装 vue-dompurify-html 插件
+  app.use(VueDomPurifyHTML);
 
   // 动态更新标题
   watchEffect(() => {

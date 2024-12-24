@@ -10,7 +10,7 @@ import {
   errorMessageResponseInterceptor,
   RequestClient,
 } from '@vben/request';
-import { useAccessStore } from '@vben/stores';
+import { useAccessStore, useTenantStore } from '@vben/stores';
 
 import { message } from '#/adapter/naive';
 import { useAuthStore } from '#/store';
@@ -23,7 +23,6 @@ function createRequestClient(baseURL: string) {
   const client = new RequestClient({
     baseURL,
   });
-
   /**
    * 重新认证逻辑
    */
@@ -47,9 +46,12 @@ function createRequestClient(baseURL: string) {
    */
   async function doRefreshToken() {
     const accessStore = useAccessStore();
-    const resp = await refreshTokenApi();
-    const newToken = resp.data;
+    const resp = await refreshTokenApi(accessStore.refreshToken ?? '');
+    const newToken = resp.accessToken;
+    const newRefreshToken = resp.refreshToken;
+
     accessStore.setAccessToken(newToken);
+    accessStore.setRefreshToken(newRefreshToken);
     return newToken;
   }
 
@@ -61,9 +63,11 @@ function createRequestClient(baseURL: string) {
   client.addRequestInterceptor({
     fulfilled: async (config) => {
       const accessStore = useAccessStore();
+      const tenantStore = useTenantStore();
 
       config.headers.Authorization = formatToken(accessStore.accessToken);
       config.headers['Accept-Language'] = preferences.app.locale;
+      config.headers['tenant-id'] = tenantStore.tenantId ?? undefined;
       return config;
     },
   });
@@ -98,7 +102,8 @@ function createRequestClient(baseURL: string) {
       // 这里可以根据业务进行定制,你可以拿到 error 内的信息进行定制化处理，根据不同的 code 做不同的提示，而不是直接使用 message.error 提示 msg
       // 当前mock接口返回的错误字段是 error 或者 message
       const responseData = error?.response?.data ?? {};
-      const errorMessage = responseData?.error ?? responseData?.message ?? '';
+      const errorMessage =
+        responseData?.error ?? responseData?.message ?? responseData.msg ?? '';
       // 如果没有错误信息，则会根据状态码进行提示
       message.error(errorMessage || msg);
     }),
@@ -110,3 +115,5 @@ function createRequestClient(baseURL: string) {
 export const requestClient = createRequestClient(apiURL);
 
 export const baseRequestClient = new RequestClient({ baseURL: apiURL });
+
+export type * from '@vben/request';

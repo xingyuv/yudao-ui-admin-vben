@@ -9,5 +9,17 @@ export const overridesPreferences = defineOverridesPreferences({
   // overrides
   app: {
     name: import.meta.env.VITE_APP_TITLE,
+    watermark: false,
+    /** 后端路由模式 */
+    accessMode: 'backend',
+    enableRefreshToken: true,
+  },
+  footer: {
+    enable: true,
+    fixed: true,
+  },
+  copyright: {
+    companyName: import.meta.env.VITE_APP_TITLE,
+    companySiteLink: import.meta.env.COMPANY_SITE_LINK,
   },
 });

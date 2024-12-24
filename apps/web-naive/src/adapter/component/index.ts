@@ -44,6 +44,7 @@ const withDefaultPlaceholder = <T extends Component>(
 
 // 这里需要自行根据业务组件库进行适配，需要用到的组件都需要在这里类型说明
 export type ComponentType =
+  | 'ApiCheckbox'
   | 'ApiSelect'
   | 'ApiTreeSelect'
   | 'Checkbox'
@@ -68,6 +69,18 @@ async function initComponentAdapter() {
     // Button: () =>
     // import('xxx').then((res) => res.Button),
 
+    ApiCheckbox: (props, { attrs, slots }) => {
+      return h(
+        ApiComponent,
+        {
+          ...props,
+          ...attrs,
+          component: CheckboxGroup,
+          modelPropName: 'value',
+        },
+        slots,
+      );
+    },
     ApiSelect: (props, { attrs, slots }) => {
       return h(
         ApiComponent,

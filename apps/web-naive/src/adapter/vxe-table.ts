@@ -1,8 +1,11 @@
 import { h } from 'vue';
 
+import { IconifyIcon } from '@vben/icons';
 import { setupVbenVxeTable, useVbenVxeGrid } from '@vben/plugins/vxe-table';
 
 import { NButton, NImage } from 'naive-ui';
+
+import { getDictObj } from '#/utils/dict';
 
 import { useVbenForm } from './form';
 
@@ -20,12 +23,22 @@ setupVbenVxeTable({
           // 全局禁用vxe-table的表单配置，使用formOptions
           enabled: false,
         },
+        toolbarConfig: {
+          import: true,
+          export: true,
+          refresh: true,
+          print: true,
+          zoom: true,
+          custom: true,
+        },
+        customConfig: {
+          mode: 'modal',
+        },
         proxyConfig: {
           autoLoad: true,
           response: {
-            result: 'items',
+            result: 'list',
             total: 'total',
-            list: 'items',
           },
           showActiveMsg: true,
           showResponseMsg: false,
@@ -53,6 +66,38 @@ setupVbenVxeTable({
           { size: 'small', type: 'primary', quaternary: true },
           { default: () => props?.text },
         );
+      },
+    });
+
+    // 字典 表格配置项可以用 cellRender: { name: 'CellDict',props:{dictType: ''} },
+    vxeUI.renderer.add('CellDict', {
+      renderTableDefault(renderOpts, params) {
+        const { props } = renderOpts;
+        const { column, row } = params;
+        if (!props) {
+          return '';
+        }
+        const dict = getDictObj(props.type, row[column.field]);
+        // 转义
+        if (dict) {
+          if (`${dict.colorType}` === 'primary') dict.colorType = 'processing';
+          else if (`${dict.colorType}` === 'danger') dict.colorType = 'error';
+          else if (`${dict.colorType}` === 'info') dict.colorType = 'default';
+          else if (!dict.colorType) dict.colorType = 'default';
+          return h(
+            Tag,
+            { color: dict.colorType },
+            { default: () => dict.label },
+          );
+        }
+        return '';
+      },
+    });
+    // 图标 表格配置项可以用 cellRender: { name: 'CellIcon' },
+    vxeUI.renderer.add('CellIcon', {
+      renderTableDefault(_renderOpts, params) {
+        const { column, row } = params;
+        return h(IconifyIcon, { icon: row[column.field], size: 14 });
       },
     });
 
